@@ -1,0 +1,73 @@
+<!-- index with shader code - important! -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>HKW MOABEAT</title>
+
+    <!-- favicon :  -->
+    <link rel="icon" type="image/x-icon" href="./assets/boing.png">
+
+    <!-- Three.js -->
+    <script src="./lib/three.min.js"></script>
+
+    <!-- iridescence material: (currently unused)-->
+    <script src="./lib/ThinFilmFresnelMap.js"></script>
+    <script src="./lib/IridescentMaterial.js"></script>
+
+  </head>
+
+  <body>
+    <!-- Meine Shader: -->
+    <!-- VERTEX : -->
+    <script id="vertexShader" type="shader">
+      // Get the framecount uniform
+      uniform float uFrameCount;
+
+      // Get my values
+      uniform float uAmplitudeY;
+      uniform float uAmplitudeX;
+      uniform float uAmplitudeZ;
+
+      // send the normal to the frag shader
+      varying vec3 vNormal;
+
+      void main() {
+        // copy the position data into a vec4, using 1.0 as the w component
+        vec4 positionVec4 = vec4(position, 1.0);
+
+        // distortion:
+        positionVec4.x += normal.x * uAmplitudeY;
+        positionVec4.y += normal.y * uAmplitudeX;
+        positionVec4.z += normal.z * uAmplitudeZ;
+
+        // "normal" is already supplied by WebGL thingy
+        vNormal = normal;
+
+        // the values "projectionMatrix" & "modelViewMatrix" are already kindly pre-filled by three 
+        gl_Position = projectionMatrix * modelViewMatrix * positionVec4;
+      }
+    </script>
+    <!-- FRAGMENT : -->
+    <script id="fragmentShader" type="shader">
+      precision mediump float;
+
+      //get uniforms
+      uniform float uNormalMultiplier;
+
+      // Get the normal from the vertex shader
+      varying vec3 vNormal;
+
+      void main() {
+        
+        // Normalize / or spice up the normal colors
+        vec3 color = vNormal * uNormalMultiplier;
+
+        gl_FragColor = vec4(color.x, color.y, color.z, 1.0);
+      }
+    </script>
+    
+    <!-- "defer" makes the script load later - important! -->
+    <script type="module", src="./HKW_Tunnel_myShader.js" defer ></script>
+  </body>
+  </html>
